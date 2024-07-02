@@ -3,6 +3,7 @@ import numpy as np
 from scipy.integrate import odeint
 from numpy import linalg as LA
 
+
 ################FUNCTIONS
 def vectorfield(w, t, p):
     """
@@ -15,8 +16,7 @@ def vectorfield(w, t, p):
         p :  vector of the parameters:
                   p = [m1,m2,k1,k2,L1,L2,b1,b2]
     """
-    # x1, y1, x2, y2 = w
-    x1, x2 = w
+    x1, y1, x2, y2 = w
     # m1, m2, k1, kc, k2, v1, v2, om1, om2 = p
     m1, m2, om1, om2, k1, kc, k2 = p
     # Create f = (x1',y1',x2',y2'):
@@ -32,10 +32,13 @@ def vectorfield(w, t, p):
     #     0 + 0 + 0 + y2,
     #     (-kc / m2) * x1 + 0 + (-kc / m2 - om2**2) * x2 + -v2 * y2,
     # ]
-    f2 = [(-m1*om1**2+k1+kc)*x1 + (-kc*x2),
-          (-kc*x1) + (-m2*om2**2+k2+kc)*x2,]
+    f2 = [
+        y1,
+        (-m1 * om1**2 + k1 + kc) * x1 + (-kc * x2),
+        y2,
+        (-kc * x1) + (-m2 * om2**2 + k2 + kc) * x2,
+    ]
 
-    
     return f2
 
 
@@ -44,11 +47,11 @@ from scipy.integrate import odeint
 
 # Parameter values
 # Masses:
-m1 = 10.5
-m2 = 10.5
+m1 = 1.5
+m2 = 2.5
 # Spring constants
-k1 = 20.0
-k2 = 20.0
+k1 = 2.0
+k2 = 2.0
 # # Friction coefficients
 # b1 = 0.1
 # b2 = 0.1
@@ -59,15 +62,15 @@ om2 = 2.0
 # v1 = 0.5
 # v2 = 0.5
 # kc
-kc = 50.0
+kc = 3.0
 
 
 # Initial conditions
 # x1 and x2 are the initial displacements; y1 and y2 are the initial velocities
-x1 = 0.5
-y1 = 0.0
-x2 = 2.25
-y2 = 0.0
+x1 = 0.0
+y1 = 0.5
+x2 = 0.0
+y2 = -0.5
 
 # ODE solver parameters
 abserr = 1.0e-8
@@ -84,16 +87,16 @@ t = [stoptime * float(i) / (numpoints - 1) for i in range(numpoints)]
 # p = [m1, m2, k1, k2, L1, L2, b1, b2]
 p = [m1, m2, k1, kc, k2, om1, om2]
 
-w0 = [x1,  x2]
+w0 = [x1, y1, x2, y2]
 
 # Call the ODE solver.
 wsol = odeint(vectorfield, w0, t, args=(p,), atol=abserr, rtol=relerr)
 
-with open("two_springs.dat", "w") as f:
+with open("2s_nondamped.dat", "w") as f:
     # Print & save the solution.
     for t1, w1 in zip(t, wsol):
-        print(t1, w1[0], w1[1],  file=f)
-        # print(t1, w1[0], w1[1], w1[2], w1[3], file=f)
+        # print(t1, w1[0], w1[1], file=f)
+        print(t1, w1[0], w1[1], w1[2], w1[3], file=f)
 
 
 # Plot the solution that was generated
@@ -102,8 +105,7 @@ from numpy import loadtxt
 from pylab import figure, plot, xlabel, grid, legend, title, savefig
 from matplotlib.font_manager import FontProperties
 
-# t, x1, y1, x2, y2 = loadtxt("two_springs.dat", unpack=True)
-t, x1, x2 = loadtxt("two_springs.dat", unpack=True)
+t, x1, y1, x2, y2 = loadtxt("2s_nondamped.dat", unpack=True)
 
 
 figure(1, figsize=(6, 4.5))
@@ -118,6 +120,11 @@ plot(t, x2, "g", linewidth=lw)
 
 legend((r"$x_1$", r"$x_2$"), prop=FontProperties(size=16))
 title("Mass Displacements for the\nCoupled Spring-Mass System")
-savefig("two_springs.png", dpi=100)
+savefig("2s_nondamped.png", dpi=100)
 
 
+from numpy import linalg as LA
+
+f2 = np.array([[-m1 * om1**2 + k1 + kc, -kc], [-kc, -m2 * om2**2 + k2 + kc]])
+eigenvalues, eigenvectors = LA.eig(f2)
+print(eigenvalues)

@@ -31,7 +31,7 @@ def vectorfield(w, t, p):
         0 + 0 + 0 + y2,
         (-kc / m2) * x1 + 0 + (-kc / m2 - om2**2) * x2 + -v2 * y2,
     ]
-    
+
     return f1
 
 
@@ -97,7 +97,7 @@ from numpy import loadtxt
 from pylab import figure, plot, xlabel, grid, legend, title, savefig
 from matplotlib.font_manager import FontProperties
 
-t, x1, xy, x2, y2 = loadtxt("two_springs.dat", unpack=True)
+t, x1, y1, x2, y2 = loadtxt("two_springs.dat", unpack=True)
 
 figure(1, figsize=(6, 4.5))
 
@@ -115,6 +115,7 @@ savefig("two_springs.png", dpi=100)
 
 
 from numpy import linalg as LA
-f2 = np.array([[-m1*om1**2+k1+kc, -kc],[-kc, -m2*om2**2+k2+kc]])
-eigenvalues, eigenvectors =LA.eig(f2)
+
+f2 = np.array([[-m1 * om1**2 + k1 + kc, -kc], [-kc, -m2 * om2**2 + k2 + kc]])
+eigenvalues, eigenvectors = LA.eig(f2)
 print(eigenvalues)
