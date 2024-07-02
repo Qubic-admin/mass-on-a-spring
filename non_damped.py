@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import odeint
-
+from numpy import linalg as LA
 
 ################FUNCTIONS
 def vectorfield(w, t, p):
@@ -15,9 +15,10 @@ def vectorfield(w, t, p):
         p :  vector of the parameters:
                   p = [m1,m2,k1,k2,L1,L2,b1,b2]
     """
-    x1, y1, x2, y2 = w
-    m1, m2, k1, kc, k2, v1, v2, om1, om2 = p
-
+    # x1, y1, x2, y2 = w
+    x1, x2 = w
+    # m1, m2, k1, kc, k2, v1, v2, om1, om2 = p
+    m1, m2, om1, om2, k1, kc, k2 = p
     # Create f = (x1',y1',x2',y2'):
     # f = [
     #     y1,
@@ -25,14 +26,17 @@ def vectorfield(w, t, p):
     #     y2,
     #     (-b2 * y2 - k2 * (x2 - x1 - L2)) / m2,
     # ]
-    f1 = [
-        0 + y1 + 0 + 0,
-        (-kc / m1 - om1**2) * x1 + -v1 * y1 + -kc / m1 * x2 + 0,
-        0 + 0 + 0 + y2,
-        (-kc / m2) * x1 + 0 + (-kc / m2 - om2**2) * x2 + -v2 * y2,
-    ]
+    # f1 = [
+    #     0 + y1 + 0 + 0,
+    #     (-kc / m1 - om1**2) * x1 + -v1 * y1 + -kc / m1 * x2 + 0,
+    #     0 + 0 + 0 + y2,
+    #     (-kc / m2) * x1 + 0 + (-kc / m2 - om2**2) * x2 + -v2 * y2,
+    # ]
+    f2 = [(-m1*om1**2+k1+kc)*x1 + (-kc*x2),
+          (-kc*x1) + (-m2*om2**2+k2+kc)*x2,]
+
     
-    return f1
+    return f2
 
 
 # Use ODEINT to solve the differential equations defined by the vector field
@@ -40,22 +44,22 @@ from scipy.integrate import odeint
 
 # Parameter values
 # Masses:
-m1 = 1.5
-m2 = 1.5
+m1 = 10.5
+m2 = 10.5
 # Spring constants
-k1 = 8.0
-k2 = 40.0
+k1 = 20.0
+k2 = 20.0
 # # Friction coefficients
 # b1 = 0.1
 # b2 = 0.1
 # res freq
-om1 = 2
-om2 = 20
-# gamma
-v1 = 0.5
-v2 = 0.5
+om1 = 2.0
+om2 = 2.0
+# # gamma
+# v1 = 0.5
+# v2 = 0.5
 # kc
-kc = 5
+kc = 50.0
 
 
 # Initial conditions
@@ -78,9 +82,9 @@ t = [stoptime * float(i) / (numpoints - 1) for i in range(numpoints)]
 
 # Pack up the parameters and initial conditions:
 # p = [m1, m2, k1, k2, L1, L2, b1, b2]
-p = [m1, m2, k1, kc, k2, v1, v2, om1, om2]
+p = [m1, m2, k1, kc, k2, om1, om2]
 
-w0 = [x1, y1, x2, y2]
+w0 = [x1,  x2]
 
 # Call the ODE solver.
 wsol = odeint(vectorfield, w0, t, args=(p,), atol=abserr, rtol=relerr)
@@ -88,7 +92,8 @@ wsol = odeint(vectorfield, w0, t, args=(p,), atol=abserr, rtol=relerr)
 with open("two_springs.dat", "w") as f:
     # Print & save the solution.
     for t1, w1 in zip(t, wsol):
-        print(t1, w1[0], w1[1], w1[2], w1[3], file=f)
+        print(t1, w1[0], w1[1],  file=f)
+        # print(t1, w1[0], w1[1], w1[2], w1[3], file=f)
 
 
 # Plot the solution that was generated
@@ -97,7 +102,9 @@ from numpy import loadtxt
 from pylab import figure, plot, xlabel, grid, legend, title, savefig
 from matplotlib.font_manager import FontProperties
 
-t, x1, xy, x2, y2 = loadtxt("two_springs.dat", unpack=True)
+# t, x1, y1, x2, y2 = loadtxt("two_springs.dat", unpack=True)
+t, x1, x2 = loadtxt("two_springs.dat", unpack=True)
+
 
 figure(1, figsize=(6, 4.5))
 
@@ -114,7 +121,3 @@ title("Mass Displacements for the\nCoupled Spring-Mass System")
 savefig("two_springs.png", dpi=100)
 
 
-from numpy import linalg as LA
-f2 = np.array([[-m1*om1**2+k1+kc, -kc],[-kc, -m2*om2**2+k2+kc]])
-eigenvalues, eigenvectors =LA.eig(f2)
-print(eigenvalues)
