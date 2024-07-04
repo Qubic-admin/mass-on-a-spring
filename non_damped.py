@@ -18,25 +18,14 @@ def vectorfield(w, t, p):
     """
     x1, y1, x2, y2 = w
     # m1, m2, k1, kc, k2, v1, v2, om1, om2 = p
-    m1, m2, om1, om2, k1, kc, k2 = p
+    m1, m2, k1, kc, k2 = p
     # Create f = (x1',y1',x2',y2'):
-    # f = [
-    #     y1,
-    #     (-b1 * y1 - k1 * (x1 - L1) + k2 * (x2 - x1 - L2)) / m1,
-    #     y2,
-    #     (-b2 * y2 - k2 * (x2 - x1 - L2)) / m2,
-    # ]
-    # f1 = [
-    #     0 + y1 + 0 + 0,
-    #     (-kc / m1 - om1**2) * x1 + -v1 * y1 + -kc / m1 * x2 + 0,
-    #     0 + 0 + 0 + y2,
-    #     (-kc / m2) * x1 + 0 + (-kc / m2 - om2**2) * x2 + -v2 * y2,
-    # ]
+
     f2 = [
         y1,
-        (-m1 * om1**2 + k1 + kc) * x1 + (-kc * x2),
+        (-k1 - kc) * x1 / m1 + (kc * x2 / m1),
         y2,
-        (-kc * x1) + (-m2 * om2**2 + k2 + kc) * x2,
+        (kc * x1 / m2) + (-k2 - kc) * x2 / m2,
     ]
 
     return f2
@@ -48,29 +37,23 @@ from scipy.integrate import odeint
 # Parameter values
 # Masses:
 m1 = 1.5
-m2 = 2.5
+m2 = 1.5
 # Spring constants
 k1 = 2.0
 k2 = 2.0
-# # Friction coefficients
-# b1 = 0.1
-# b2 = 0.1
-# res freq
-om1 = 2.0
-om2 = 2.0
-# # gamma
-# v1 = 0.5
-# v2 = 0.5
+# # res freq
+# om1 = 2.0
+# om2 = 2.0
 # kc
 kc = 3.0
 
 
 # Initial conditions
 # x1 and x2 are the initial displacements; y1 and y2 are the initial velocities
-x1 = 0.0
-y1 = 0.5
-x2 = 0.0
-y2 = -0.5
+x1 = 1.0
+y1 = 0.0
+x2 = -1.0
+y2 = 0.0
 
 # ODE solver parameters
 abserr = 1.0e-8
@@ -85,7 +68,13 @@ t = [stoptime * float(i) / (numpoints - 1) for i in range(numpoints)]
 
 # Pack up the parameters and initial conditions:
 # p = [m1, m2, k1, k2, L1, L2, b1, b2]
-p = [m1, m2, k1, kc, k2, om1, om2]
+p = [
+    m1,
+    m2,
+    k1,
+    kc,
+    k2,
+]
 
 w0 = [x1, y1, x2, y2]
 
@@ -123,8 +112,16 @@ title("Mass Displacements for the\nCoupled Spring-Mass System")
 savefig("2s_nondamped.png", dpi=100)
 
 
-from numpy import linalg as LA
+# from numpy import linalg as LA
 
-f2 = np.array([[-m1 * om1**2 + k1 + kc, -kc], [-kc, -m2 * om2**2 + k2 + kc]])
-eigenvalues, eigenvectors = LA.eig(f2)
-print(eigenvalues)
+# f1 = np.array([[-m1 * om1**2 + k1 + kc, -kc], [-kc, -m2 * om2**2 + k2 + kc]])
+# f2 = np.array(
+#     [
+#         [0, 1, 0, 0],
+#         [-m1 * om1**2 + k1 + kc, 0, -kc, 0],
+#         [0, 0, 0, 1],
+#         [-kc, 0, -m2 * om2**2 + k2 + kc, 0],
+#     ]
+# )
+# eigenvalues, eigenvectors = LA.eig(f1)
+# print(eigenvalues)
