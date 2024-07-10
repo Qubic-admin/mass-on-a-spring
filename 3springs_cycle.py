@@ -43,8 +43,8 @@ m2 = 1.5
 m3 = 1.5
 # Spring constants
 k1 = 2.0
-k2 = 2.0
-k3 = 2.0
+k2 = 1.0
+k3 = 3.0
 # # res freq
 # om1 = 2.0
 # om2 = 2.0
@@ -55,9 +55,9 @@ k3 = 2.0
 # x1 and x2 are the initial displacements; y1 and y2 are the initial velocities
 x1 = 0.5
 y1 = 0.0
-x2 = 0.5
+x2 = 1.7
 y2 = 0.0
-x3 = 0.5
+x3 = -0.3
 y3 = 0.0
 
 # ODE solver parameters

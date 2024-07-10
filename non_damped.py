@@ -52,7 +52,7 @@ kc = 3.0
 # x1 and x2 are the initial displacements; y1 and y2 are the initial velocities
 x1 = 1.0
 y1 = 0.0
-x2 = -1.0
+x2 = 0.0
 y2 = 0.0
 
 # ODE solver parameters
